@@ -66,12 +66,197 @@
       height: 100%;
       background-color: #00796b;
       width: 0%;
-      transition: width 0.3s ease;
+      transition: width 0.3s ease, background-color 0.3s ease;
     }
   </style>
 </head>
 <body>
   <h1>Manvik's Life Goal Tracker</h1>
-  <!-- Content is assumed to be present -->
+
+  <div class="date-input">
+    <label for="startDate">Start Tracking From: </label>
+    <input type="date" id="startDate" onchange="switchDate()" />
+  </div>
+
+  <div style="text-align: center;">
+    <button class="nav-button" onclick="showResultPage()">Go to Result Page</button>
+  </div>
+
+  <div id="trackerPage">
+    <div class="goal-section">
+      <h2>1. Water Intake (3 Liters)</h2>
+      <div id="waterCheckboxes" class="checkbox-group"></div>
+      <div class="progress-container">
+        <div class="progress-bar" id="waterProgress"></div>
+      </div>
+    </div>
+
+    <div class="goal-section">
+      <h2>2. Exercise</h2>
+      <label><input type="checkbox" class="goal-check exercise-check" /> Completed Exercise</label>
+      <div class="progress-container">
+        <div class="progress-bar" id="exerciseProgress"></div>
+      </div>
+    </div>
+
+    <div class="goal-section">
+      <h2>3. Lecture (Minimum 3)</h2>
+      <div class="checkbox-group" id="lectureCheckboxes"></div>
+      <div class="progress-container">
+        <div class="progress-bar" id="lectureProgress"></div>
+      </div>
+    </div>
+
+    <div class="goal-section">
+      <h2>4. Reading (1 Hour)</h2>
+      <label><input type="checkbox" class="goal-check reading-check" /> Completed Reading</label>
+      <div class="progress-container">
+        <div class="progress-bar" id="readingProgress"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="resultPage" class="hidden">
+    <h2>Results for <span id="resultDate"></span></h2>
+    <div id="resultContent"></div>
+    <button class="nav-button" onclick="goBack()">Back to Tracker</button>
+  </div>
+
+  <script>
+    let currentDate = "";
+    let stateStore = {};
+    try {
+      stateStore = JSON.parse(localStorage.getItem("goalTrackerState")) || {};
+    } catch (e) {
+      localStorage.removeItem("goalTrackerState");
+      stateStore = {};
+    }
+
+    function createCheckboxes() {
+      const waterContainer = document.getElementById("waterCheckboxes");
+      waterContainer.innerHTML = "";
+      for (let i = 1; i <= 12; i++) {
+        const label = document.createElement("label");
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.classList.add("water-check");
+        label.appendChild(checkbox);
+        label.appendChild(document.createTextNode(` Glass ${i}`));
+        waterContainer.appendChild(label);
+      }
+
+      const lectureContainer = document.getElementById("lectureCheckboxes");
+      lectureContainer.innerHTML = "";
+      for (let i = 1; i <= 3; i++) {
+        const label = document.createElement("label");
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.classList.add("lecture-check");
+        label.appendChild(checkbox);
+        label.appendChild(document.createTextNode(` Lecture ${i}`));
+        lectureContainer.appendChild(label);
+      }
+    }
+
+    window.addEventListener("load", () => {
+      createCheckboxes();
+      bindCheckListeners();
+      const lastDate = localStorage.getItem("lastSelectedDate");
+      if (lastDate) {
+        document.getElementById("startDate").value = lastDate;
+        currentDate = lastDate;
+        restoreDayState(currentDate);
+      }
+    });
+
+    function updateProgressBar(containerId, checkboxes) {
+      const checked = [...checkboxes].filter(cb => cb.checked).length;
+      const total = checkboxes.length;
+      const percent = (checked / total) * 100;
+      const bar = document.getElementById(containerId);
+      if (bar) bar.style.width = percent + "%";
+    }
+
+    function bindCheckListeners() {
+      document.querySelectorAll(".water-check").forEach((cb) => {
+        cb.addEventListener("change", () => updateProgressBar("waterProgress", document.querySelectorAll(".water-check")));
+      });
+      document.querySelectorAll(".lecture-check").forEach((cb) => {
+        cb.addEventListener("change", () => updateProgressBar("lectureProgress", document.querySelectorAll(".lecture-check")));
+      });
+      document.querySelectorAll(".exercise-check").forEach((cb) => {
+        cb.addEventListener("change", () => updateProgressBar("exerciseProgress", document.querySelectorAll(".exercise-check")));
+      });
+      document.querySelectorAll(".reading-check").forEach((cb) => {
+        cb.addEventListener("change", () => updateProgressBar("readingProgress", document.querySelectorAll(".reading-check")));
+      });
+    }
+
+    function saveDayState(date) {
+      const checks = [...document.querySelectorAll("input[type='checkbox']")].map(cb => cb.checked);
+      stateStore[date] = checks;
+      localStorage.setItem("goalTrackerState", JSON.stringify(stateStore));
+    }
+
+    function restoreDayState(date) {
+      createCheckboxes();
+      const saved = stateStore[date];
+      const allChecks = [...document.querySelectorAll("input[type='checkbox']")];
+      if (saved) {
+        allChecks.forEach((cb, i) => cb.checked = saved[i]);
+      } else {
+        allChecks.forEach(cb => cb.checked = false);
+      }
+      updateProgressBar("waterProgress", document.querySelectorAll(".water-check"));
+      updateProgressBar("lectureProgress", document.querySelectorAll(".lecture-check"));
+      updateProgressBar("exerciseProgress", document.querySelectorAll(".exercise-check"));
+      updateProgressBar("readingProgress", document.querySelectorAll(".reading-check"));
+      bindCheckListeners();
+    }
+
+    function switchDate() {
+      const date = document.getElementById("startDate").value;
+      if (!date) return;
+      if (currentDate) saveDayState(currentDate);
+      currentDate = date;
+      localStorage.setItem("lastSelectedDate", currentDate);
+      restoreDayState(currentDate);
+    }
+
+    function showResultPage() {
+      if (currentDate) saveDayState(currentDate);
+      document.getElementById("trackerPage").classList.add("hidden");
+      document.getElementById("resultPage").classList.remove("hidden");
+      document.getElementById("resultDate").textContent = currentDate;
+
+      const content = document.getElementById("resultContent");
+      content.innerHTML = "";
+
+      const sections = [
+        { label: "Water Intake", selector: ".water-check" },
+        { label: "Lectures", selector: ".lecture-check" },
+        { label: "Exercise", selector: ".exercise-check" },
+        { label: "Reading", selector: ".reading-check" }
+      ];
+
+      sections.forEach(({ label, selector }) => {
+        const checks = document.querySelectorAll(selector);
+        const completed = [...checks].filter(cb => cb.checked).length;
+        const total = checks.length;
+        const percent = Math.round((completed / total) * 100);
+
+        const div = document.createElement("div");
+        div.innerHTML = `<strong>${label}:</strong> ${completed}/${total} completed <div class='progress-container'><div class='progress-bar' style='width:${percent}%'></div></div>`;
+        content.appendChild(div);
+      });
+    }
+
+    function goBack() {
+      document.getElementById("trackerPage").classList.remove("hidden");
+      document.getElementById("resultPage").classList.add("hidden");
+      restoreDayState(currentDate);
+    }
+  </script>
 </body>
 </html>
+
