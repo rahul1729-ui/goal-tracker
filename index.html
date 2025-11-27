@@ -1,262 +1,827 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Goal Tracker App</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 20px;
-      background: linear-gradient(to right, #e0f7fa, #fff);
-      color: #333;
-    }
-    h1 {
-      text-align: center;
-      color: #2e7d32;
-    }
-    h2 {
-      color: #00695c;
-    }
-    .goal-section {
-      background: #ffffffcc;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-    .checkbox-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .checkbox-group label {
-      display: flex;
-      align-items: center;
-    }
-    .nav-button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #00796b;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    .nav-button:hover {
-      background-color: #004d40;
-    }
-    .hidden {
-      display: none;
-    }
-    .date-input {
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    .progress-container {
-      background-color: #e0e0e0;
-      border-radius: 10px;
-      overflow: hidden;
-      margin-top: 10px;
-      height: 20px;
-    }
-    .progress-bar {
-      height: 100%;
-      background-color: #00796b;
-      width: 0%;
-      transition: width 0.3s ease, background-color 0.3s ease;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Goal Tracker Pro | Daily Habit Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #a5b4fc;
+            --secondary: #10b981;
+            --secondary-dark: #059669;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #475569;
+            --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            --radius: 16px;
+            --radius-sm: 8px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .app-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 32px;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--primary);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: 8px;
+        }
+
+        /* Date Selector */
+        .date-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .date-selector label {
+            font-weight: 500;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .date-selector label i {
+            color: var(--primary);
+        }
+
+        .date-input {
+            padding: 12px 20px;
+            font-size: 1rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .date-input:hover, .date-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Stats Overview */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 1.25rem;
+        }
+
+        .stat-card.water .stat-icon { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .stat-card.exercise .stat-icon { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .stat-card.lecture .stat-icon { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+        .stat-card.reading .stat-icon { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        /* Goal Cards */
+        .goal-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+
+        .goal-card:hover {
+            border-color: var(--primary);
+        }
+
+        .goal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .goal-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .goal-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .goal-card.water .goal-icon { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .goal-card.exercise .goal-icon { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .goal-card.lecture .goal-icon { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+        .goal-card.reading .goal-icon { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+
+        .goal-title h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .goal-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .goal-progress-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .progress-bar-container {
+            height: 8px;
+            background: var(--bg-card);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .goal-card.water .progress-bar { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+        .goal-card.exercise .progress-bar { background: linear-gradient(90deg, #ef4444, #f87171); }
+        .goal-card.lecture .progress-bar { background: linear-gradient(90deg, #a855f7, #c084fc); }
+        .goal-card.reading .progress-bar { background: linear-gradient(90deg, #10b981, #34d399); }
+
+        /* Checkbox Grid */
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .checkbox-item:hover {
+            background: var(--bg-primary);
+            border-color: var(--border);
+        }
+
+        .checkbox-item.checked {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--primary);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            display: none;
+        }
+
+        .custom-checkbox {
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .checkbox-item.checked .custom-checkbox {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .custom-checkbox i {
+            font-size: 12px;
+            color: white;
+            opacity: 0;
+            transform: scale(0);
+            transition: var(--transition);
+        }
+
+        .checkbox-item.checked .custom-checkbox i {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .checkbox-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+
+        .checkbox-item.checked .checkbox-label {
+            color: var(--text-primary);
+        }
+
+        .single-checkbox {
+            max-width: 200px;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            background: var(--bg-secondary);
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+
+        /* Result Page */
+        .result-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .result-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .result-score {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .result-card.complete .result-score { color: var(--secondary); }
+        .result-card.partial .result-score { color: var(--accent); }
+        .result-card.incomplete .result-score { color: var(--danger); }
+
+        .overall-score {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-card));
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .overall-score .score-value {
+            font-size: 4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .overall-score .score-label {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-top: 8px;
+        }
+
+        .score-message {
+            margin-top: 16px;
+            padding: 16px 24px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+        }
+
+        .score-message.excellent { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .score-message.good { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; }
+        .score-message.average { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        .score-message.poor { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+
+        .hidden { display: none; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .app-container { padding: 16px; }
+            .header { padding: 24px 16px; }
+            .header h1 { font-size: 1.5rem; }
+            .goal-card { padding: 16px; }
+            .checkbox-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+            .btn { padding: 12px 20px; font-size: 0.9rem; }
+        }
+    </style>
 </head>
 <body>
-  <h1>Manvik's Life Goal Tracker</h1>
+    <div class="app-container">
+        <!-- Tracker Page -->
+        <div id="trackerPage">
+            <header class="header">
+                <div class="logo">
+                    <i class="fas fa-bullseye"></i>
+                    <h1>Goal Tracker Pro</h1>
+                </div>
+                <p>Track your daily habits and achieve your goals</p>
+            </header>
 
-  <div class="date-input">
-    <label for="startDate">Start Tracking From: </label>
-    <input type="date" id="startDate" onchange="switchDate()" />
-  </div>
+            <div class="date-selector">
+                <label>
+                    <i class="fas fa-calendar-alt"></i>
+                    Select Date:
+                </label>
+                <input type="date" id="startDate" class="date-input" onchange="switchDate()">
+            </div>
 
-  <div style="text-align: center;">
-    <button class="nav-button" onclick="showResultPage()">Go to Result Page</button>
-  </div>
+            <div class="stats-overview">
+                <div class="stat-card water">
+                    <div class="stat-icon"><i class="fas fa-tint"></i></div>
+                    <div class="stat-value" id="waterStat">0/12</div>
+                    <div class="stat-label">Water</div>
+                </div>
+                <div class="stat-card exercise">
+                    <div class="stat-icon"><i class="fas fa-dumbbell"></i></div>
+                    <div class="stat-value" id="exerciseStat">0/1</div>
+                    <div class="stat-label">Exercise</div>
+                </div>
+                <div class="stat-card lecture">
+                    <div class="stat-icon"><i class="fas fa-book"></i></div>
+                    <div class="stat-value" id="lectureStat">0/3</div>
+                    <div class="stat-label">Lectures</div>
+                </div>
+                <div class="stat-card reading">
+                    <div class="stat-icon"><i class="fas fa-glasses"></i></div>
+                    <div class="stat-value" id="readingStat">0/1</div>
+                    <div class="stat-label">Reading</div>
+                </div>
+            </div>
 
-  <div id="trackerPage">
-    <div class="goal-section">
-      <h2>1. Water Intake (3 Liters)</h2>
-      <div id="waterCheckboxes" class="checkbox-group"></div>
-      <div class="progress-container">
-        <div class="progress-bar" id="waterProgress"></div>
-      </div>
+            <!-- Water Intake -->
+            <div class="goal-card water">
+                <div class="goal-header">
+                    <div class="goal-title">
+                        <div class="goal-icon"><i class="fas fa-tint"></i></div>
+                        <div>
+                            <h3>Water Intake</h3>
+                            <span class="goal-subtitle">Goal: 12 glasses (3 liters)</span>
+                        </div>
+                    </div>
+                    <span class="goal-progress-text" id="waterProgressText">0%</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="waterProgress" style="width: 0%"></div>
+                </div>
+                <div class="checkbox-grid" id="waterCheckboxes"></div>
+            </div>
+
+            <!-- Exercise -->
+            <div class="goal-card exercise">
+                <div class="goal-header">
+                    <div class="goal-title">
+                        <div class="goal-icon"><i class="fas fa-dumbbell"></i></div>
+                        <div>
+                            <h3>Exercise</h3>
+                            <span class="goal-subtitle">Complete your workout</span>
+                        </div>
+                    </div>
+                    <span class="goal-progress-text" id="exerciseProgressText">0%</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="exerciseProgress" style="width: 0%"></div>
+                </div>
+                <div class="checkbox-grid">
+                    <label class="checkbox-item single-checkbox" onclick="toggleCheckbox(this)">
+                        <input type="checkbox" class="exercise-check">
+                        <div class="custom-checkbox"><i class="fas fa-check"></i></div>
+                        <span class="checkbox-label">Completed</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Lectures -->
+            <div class="goal-card lecture">
+                <div class="goal-header">
+                    <div class="goal-title">
+                        <div class="goal-icon"><i class="fas fa-book"></i></div>
+                        <div>
+                            <h3>Lectures</h3>
+                            <span class="goal-subtitle">Minimum 3 lectures</span>
+                        </div>
+                    </div>
+                    <span class="goal-progress-text" id="lectureProgressText">0%</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="lectureProgress" style="width: 0%"></div>
+                </div>
+                <div class="checkbox-grid" id="lectureCheckboxes"></div>
+            </div>
+
+            <!-- Reading -->
+            <div class="goal-card reading">
+                <div class="goal-header">
+                    <div class="goal-title">
+                        <div class="goal-icon"><i class="fas fa-glasses"></i></div>
+                        <div>
+                            <h3>Reading</h3>
+                            <span class="goal-subtitle">Read for 1 hour</span>
+                        </div>
+                    </div>
+                    <span class="goal-progress-text" id="readingProgressText">0%</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="readingProgress" style="width: 0%"></div>
+                </div>
+                <div class="checkbox-grid">
+                    <label class="checkbox-item single-checkbox" onclick="toggleCheckbox(this)">
+                        <input type="checkbox" class="reading-check">
+                        <div class="custom-checkbox"><i class="fas fa-check"></i></div>
+                        <span class="checkbox-label">Completed</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="btn-container">
+                <button class="btn btn-primary" onclick="showResultPage()">
+                    <i class="fas fa-chart-pie"></i> View Results
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Page -->
+        <div id="resultPage" class="hidden">
+            <header class="header">
+                <div class="logo">
+                    <i class="fas fa-trophy"></i>
+                    <h1>Daily Results</h1>
+                </div>
+                <p id="resultDate">Results for selected date</p>
+            </header>
+
+            <div class="overall-score">
+                <div class="score-value" id="overallScore">0%</div>
+                <div class="score-label">Overall Completion</div>
+                <div class="score-message" id="scoreMessage"></div>
+            </div>
+
+            <div id="resultContent"></div>
+
+            <div class="btn-container">
+                <button class="btn btn-secondary" onclick="goBack()">
+                    <i class="fas fa-arrow-left"></i> Back to Tracker
+                </button>
+            </div>
+        </div>
     </div>
 
-    <div class="goal-section">
-      <h2>2. Exercise</h2>
-      <label><input type="checkbox" class="goal-check exercise-check" /> Completed Exercise</label>
-      <div class="progress-container">
-        <div class="progress-bar" id="exerciseProgress"></div>
-      </div>
-    </div>
+    <script>
+        let currentDate = "";
+        let stateStore = {};
 
-    <div class="goal-section">
-      <h2>3. Lecture (Minimum 3)</h2>
-      <div class="checkbox-group" id="lectureCheckboxes"></div>
-      <div class="progress-container">
-        <div class="progress-bar" id="lectureProgress"></div>
-      </div>
-    </div>
+        // Load saved state
+        try {
+            stateStore = JSON.parse(localStorage.getItem("goalTrackerState")) || {};
+        } catch (e) {
+            localStorage.removeItem("goalTrackerState");
+            stateStore = {};
+        }
 
-    <div class="goal-section">
-      <h2>4. Reading (1 Hour)</h2>
-      <label><input type="checkbox" class="goal-check reading-check" /> Completed Reading</label>
-      <div class="progress-container">
-        <div class="progress-bar" id="readingProgress"></div>
-      </div>
-    </div>
-  </div>
+        function toggleCheckbox(label) {
+            const checkbox = label.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+            label.classList.toggle('checked', checkbox.checked);
+            updateAllProgress();
+            if (currentDate) saveDayState(currentDate);
+        }
 
-  <div id="resultPage" class="hidden">
-    <h2>Results for <span id="resultDate"></span></h2>
-    <div id="resultContent"></div>
-    <button class="nav-button" onclick="goBack()">Back to Tracker</button>
-  </div>
+        function createCheckboxes() {
+            // Water checkboxes
+            const waterContainer = document.getElementById("waterCheckboxes");
+            waterContainer.innerHTML = "";
+            for (let i = 1; i <= 12; i++) {
+                const label = document.createElement("label");
+                label.className = "checkbox-item";
+                label.onclick = function() { toggleCheckbox(this); };
+                label.innerHTML = `
+                    <input type="checkbox" class="water-check">
+                    <div class="custom-checkbox"><i class="fas fa-check"></i></div>
+                    <span class="checkbox-label">Glass ${i}</span>
+                `;
+                waterContainer.appendChild(label);
+            }
 
-  <script>
-    let currentDate = "";
-    let stateStore = {};
-    try {
-      stateStore = JSON.parse(localStorage.getItem("goalTrackerState")) || {};
-    } catch (e) {
-      localStorage.removeItem("goalTrackerState");
-      stateStore = {};
-    }
+            // Lecture checkboxes
+            const lectureContainer = document.getElementById("lectureCheckboxes");
+            lectureContainer.innerHTML = "";
+            for (let i = 1; i <= 3; i++) {
+                const label = document.createElement("label");
+                label.className = "checkbox-item";
+                label.onclick = function() { toggleCheckbox(this); };
+                label.innerHTML = `
+                    <input type="checkbox" class="lecture-check">
+                    <div class="custom-checkbox"><i class="fas fa-check"></i></div>
+                    <span class="checkbox-label">Lecture ${i}</span>
+                `;
+                lectureContainer.appendChild(label);
+            }
+        }
 
-    function createCheckboxes() {
-      const waterContainer = document.getElementById("waterCheckboxes");
-      waterContainer.innerHTML = "";
-      for (let i = 1; i <= 12; i++) {
-        const label = document.createElement("label");
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.classList.add("water-check");
-        label.appendChild(checkbox);
-        label.appendChild(document.createTextNode(` Glass ${i}`));
-        waterContainer.appendChild(label);
-      }
+        function updateProgressBar(barId, textId, statId, checkboxes, total) {
+            const checked = [...checkboxes].filter(cb => cb.checked).length;
+            const percent = Math.round((checked / total) * 100);
+            
+            document.getElementById(barId).style.width = percent + "%";
+            document.getElementById(textId).textContent = percent + "%";
+            document.getElementById(statId).textContent = checked + "/" + total;
+        }
 
-      const lectureContainer = document.getElementById("lectureCheckboxes");
-      lectureContainer.innerHTML = "";
-      for (let i = 1; i <= 3; i++) {
-        const label = document.createElement("label");
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.classList.add("lecture-check");
-        label.appendChild(checkbox);
-        label.appendChild(document.createTextNode(` Lecture ${i}`));
-        lectureContainer.appendChild(label);
-      }
-    }
+        function updateAllProgress() {
+            updateProgressBar("waterProgress", "waterProgressText", "waterStat",
+                document.querySelectorAll(".water-check"), 12);
+            updateProgressBar("exerciseProgress", "exerciseProgressText", "exerciseStat",
+                document.querySelectorAll(".exercise-check"), 1);
+            updateProgressBar("lectureProgress", "lectureProgressText", "lectureStat",
+                document.querySelectorAll(".lecture-check"), 3);
+            updateProgressBar("readingProgress", "readingProgressText", "readingStat",
+                document.querySelectorAll(".reading-check"), 1);
+        }
 
-    window.addEventListener("load", () => {
-      createCheckboxes();
-      bindCheckListeners();
-      const lastDate = localStorage.getItem("lastSelectedDate");
-      if (lastDate) {
-        document.getElementById("startDate").value = lastDate;
-        currentDate = lastDate;
-        restoreDayState(currentDate);
-      }
-    });
+        function saveDayState(date) {
+            const checks = [...document.querySelectorAll("input[type='checkbox']")].map(cb => cb.checked);
+            stateStore[date] = checks;
+            localStorage.setItem("goalTrackerState", JSON.stringify(stateStore));
+        }
 
-    function updateProgressBar(containerId, checkboxes) {
-      const checked = [...checkboxes].filter(cb => cb.checked).length;
-      const total = checkboxes.length;
-      const percent = (checked / total) * 100;
-      const bar = document.getElementById(containerId);
-      if (bar) bar.style.width = percent + "%";
-    }
+        function restoreDayState(date) {
+            createCheckboxes();
+            const saved = stateStore[date];
+            const allChecks = [...document.querySelectorAll("input[type='checkbox']")];
+            const allLabels = [...document.querySelectorAll(".checkbox-item")];
+            
+            if (saved) {
+                allChecks.forEach((cb, i) => {
+                    cb.checked = saved[i];
+                });
+            } else {
+                allChecks.forEach(cb => cb.checked = false);
+            }
+            
+            allLabels.forEach(label => {
+                const cb = label.querySelector('input[type="checkbox"]');
+                label.classList.toggle('checked', cb && cb.checked);
+            });
+            
+            updateAllProgress();
+        }
 
-    function bindCheckListeners() {
-      document.querySelectorAll(".water-check").forEach((cb) => {
-        cb.addEventListener("change", () => updateProgressBar("waterProgress", document.querySelectorAll(".water-check")));
-      });
-      document.querySelectorAll(".lecture-check").forEach((cb) => {
-        cb.addEventListener("change", () => updateProgressBar("lectureProgress", document.querySelectorAll(".lecture-check")));
-      });
-      document.querySelectorAll(".exercise-check").forEach((cb) => {
-        cb.addEventListener("change", () => updateProgressBar("exerciseProgress", document.querySelectorAll(".exercise-check")));
-      });
-      document.querySelectorAll(".reading-check").forEach((cb) => {
-        cb.addEventListener("change", () => updateProgressBar("readingProgress", document.querySelectorAll(".reading-check")));
-      });
-    }
+        function switchDate() {
+            const date = document.getElementById("startDate").value;
+            if (!date) return;
+            if (currentDate) saveDayState(currentDate);
+            currentDate = date;
+            localStorage.setItem("lastSelectedDate", currentDate);
+            restoreDayState(currentDate);
+        }
 
-    function saveDayState(date) {
-      const checks = [...document.querySelectorAll("input[type='checkbox']")].map(cb => cb.checked);
-      stateStore[date] = checks;
-      localStorage.setItem("goalTrackerState", JSON.stringify(stateStore));
-    }
+        function showResultPage() {
+            if (currentDate) saveDayState(currentDate);
+            
+            document.getElementById("trackerPage").classList.add("hidden");
+            document.getElementById("resultPage").classList.remove("hidden");
+            
+            const dateObj = new Date(currentDate);
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById("resultDate").textContent = dateObj.toLocaleDateString('en-US', options);
+            
+            const content = document.getElementById("resultContent");
+            content.innerHTML = "";
+            
+            const sections = [
+                { label: "Water Intake", selector: ".water-check", total: 12, icon: "fa-tint", color: "#3b82f6" },
+                { label: "Exercise", selector: ".exercise-check", total: 1, icon: "fa-dumbbell", color: "#ef4444" },
+                { label: "Lectures", selector: ".lecture-check", total: 3, icon: "fa-book", color: "#a855f7" },
+                { label: "Reading", selector: ".reading-check", total: 1, icon: "fa-glasses", color: "#10b981" }
+            ];
+            
+            let totalCompleted = 0;
+            let totalItems = 0;
+            
+            sections.forEach(({ label, selector, total, icon, color }) => {
+                const checks = document.querySelectorAll(selector);
+                const completed = [...checks].filter(cb => cb.checked).length;
+                const percent = Math.round((completed / total) * 100);
+                
+                totalCompleted += completed;
+                totalItems += total;
+                
+                const statusClass = percent === 100 ? 'complete' : percent >= 50 ? 'partial' : 'incomplete';
+                
+                const div = document.createElement("div");
+                div.className = `result-card ${statusClass}`;
+                div.innerHTML = `
+                    <div class="result-header">
+                        <div class="result-title">
+                            <i class="fas ${icon}" style="color: ${color}"></i>
+                            <span>${label}</span>
+                        </div>
+                        <span class="result-score">${completed}/${total}</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: ${percent}%; background: linear-gradient(90deg, ${color}, ${color}aa)"></div>
+                    </div>
+                `;
+                content.appendChild(div);
+            });
+            
+            const overallPercent = Math.round((totalCompleted / totalItems) * 100);
+            document.getElementById("overallScore").textContent = overallPercent + "%";
+            
+            const messageEl = document.getElementById("scoreMessage");
+            if (overallPercent >= 90) {
+                messageEl.className = "score-message excellent";
+                messageEl.innerHTML = '<i class="fas fa-star"></i> Excellent! You crushed it today!';
+            } else if (overallPercent >= 70) {
+                messageEl.className = "score-message good";
+                messageEl.innerHTML = '<i class="fas fa-thumbs-up"></i> Good job! Keep pushing!';
+            } else if (overallPercent >= 50) {
+                messageEl.className = "score-message average";
+                messageEl.innerHTML = '<i class="fas fa-hand-point-up"></i> Not bad, but you can do better!';
+            } else {
+                messageEl.className = "score-message poor";
+                messageEl.innerHTML = '<i class="fas fa-fire"></i> Tomorrow is a new day. Stay focused!';
+            }
+        }
 
-    function restoreDayState(date) {
-      createCheckboxes();
-      const saved = stateStore[date];
-      const allChecks = [...document.querySelectorAll("input[type='checkbox']")];
-      if (saved) {
-        allChecks.forEach((cb, i) => cb.checked = saved[i]);
-      } else {
-        allChecks.forEach(cb => cb.checked = false);
-      }
-      updateProgressBar("waterProgress", document.querySelectorAll(".water-check"));
-      updateProgressBar("lectureProgress", document.querySelectorAll(".lecture-check"));
-      updateProgressBar("exerciseProgress", document.querySelectorAll(".exercise-check"));
-      updateProgressBar("readingProgress", document.querySelectorAll(".reading-check"));
-      bindCheckListeners();
-    }
+        function goBack() {
+            document.getElementById("trackerPage").classList.remove("hidden");
+            document.getElementById("resultPage").classList.add("hidden");
+            restoreDayState(currentDate);
+        }
 
-    function switchDate() {
-      const date = document.getElementById("startDate").value;
-      if (!date) return;
-      if (currentDate) saveDayState(currentDate);
-      currentDate = date;
-      localStorage.setItem("lastSelectedDate", currentDate);
-      restoreDayState(currentDate);
-    }
-
-    function showResultPage() {
-      if (currentDate) saveDayState(currentDate);
-      document.getElementById("trackerPage").classList.add("hidden");
-      document.getElementById("resultPage").classList.remove("hidden");
-      document.getElementById("resultDate").textContent = currentDate;
-
-      const content = document.getElementById("resultContent");
-      content.innerHTML = "";
-
-      const sections = [
-        { label: "Water Intake", selector: ".water-check" },
-        { label: "Lectures", selector: ".lecture-check" },
-        { label: "Exercise", selector: ".exercise-check" },
-        { label: "Reading", selector: ".reading-check" }
-      ];
-
-      sections.forEach(({ label, selector }) => {
-        const checks = document.querySelectorAll(selector);
-        const completed = [...checks].filter(cb => cb.checked).length;
-        const total = checks.length;
-        const percent = Math.round((completed / total) * 100);
-
-        const div = document.createElement("div");
-        div.innerHTML = `<strong>${label}:</strong> ${completed}/${total} completed <div class='progress-container'><div class='progress-bar' style='width:${percent}%'></div></div>`;
-        content.appendChild(div);
-      });
-    }
-
-    function goBack() {
-      document.getElementById("trackerPage").classList.remove("hidden");
-      document.getElementById("resultPage").classList.add("hidden");
-      restoreDayState(currentDate);
-    }
-  </script>
+        // Initialize on load
+        window.addEventListener("load", () => {
+            createCheckboxes();
+            const lastDate = localStorage.getItem("lastSelectedDate");
+            if (lastDate) {
+                document.getElementById("startDate").value = lastDate;
+                currentDate = lastDate;
+                restoreDayState(currentDate);
+            } else {
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById("startDate").value = today;
+                currentDate = today;
+                restoreDayState(currentDate);
+            }
+        });
+    </script>
 </body>
 </html>
-
