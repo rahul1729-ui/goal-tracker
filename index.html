@@ -605,6 +605,13 @@
                     <h1>Daily Results</h1>
                 </div>
                 <p id="resultDate">Results for selected date</p>
+                            <div class="date-selector" style="margin-top: 20px;">
+                <label>
+                    <i class="fas fa-calendar-alt"></i>
+                    View Results For:
+                </label>
+                <input type="date" id="resultDatePicker" class="date-input" onchange="switchResultDate()">
+            </div>
             </header>
 
             <div class="overall-score">
@@ -741,6 +748,7 @@
             const dateObj = new Date(currentDate);
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             document.getElementById("resultDate").textContent = dateObj.toLocaleDateString('en-US', options);
+                        document.getElementById("resultDatePicker").value = currentDate;
             
             const content = document.getElementById("resultContent");
             content.innerHTML = "";
@@ -805,6 +813,82 @@
             document.getElementById("trackerPage").classList.remove("hidden");
             document.getElementById("resultPage").classList.add("hidden");
             restoreDayState(currentDate);
+        }
+
+                function switchResultDate() {
+            const date = document.getElementById("resultDatePicker").value;
+            if (!date) return;
+            
+            // Load the state for the selected date
+            const saved = stateStore[date];
+            
+            // Update the date display
+            const dateObj = new Date(date);
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById("resultDate").textContent = dateObj.toLocaleDateString('en-US', options);
+            
+            // Calculate results for the selected date
+            const content = document.getElementById("resultContent");
+            content.innerHTML = "";
+            
+            const sections = [
+                { label: "Water Intake", total: 12, icon: "fa-tint", color: "#3b82f6", startIndex: 0 },
+                { label: "Exercise", total: 1, icon: "fa-dumbbell", color: "#ef4444", startIndex: 12 },
+                { label: "Lectures", total: 3, icon: "fa-book", color: "#a855f7", startIndex: 13 },
+                { label: "Reading", total: 1, icon: "fa-glasses", color: "#10b981", startIndex: 16 }
+            ];
+            
+            let totalCompleted = 0;
+            let totalItems = 0;
+            
+            sections.forEach(({ label, total, icon, color, startIndex }) => {
+                let completed = 0;
+                if (saved) {
+                    for (let i = startIndex; i < startIndex + total; i++) {
+                        if (saved[i]) completed++;
+                    }
+                }
+                const percent = Math.round((completed / total) * 100);
+                
+                totalCompleted += completed;
+                totalItems += total;
+                
+                const statusClass = percent === 100 ? 'complete' : percent >= 50 ? 'partial' : 'incomplete';
+                
+                const div = document.createElement("div");
+                div.className = `result-card ${statusClass}`;
+                div.innerHTML = `
+                    <div class="result-header">
+                        <div class="result-title">
+                            <i class="fas ${icon}" style="color: ${color}"></i>
+                            <span>${label}</span>
+                        </div>
+                        <span class="result-score">${completed}/${total}</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: ${percent}%; background: linear-gradient(90deg, ${color}, ${color}aa)"></div>
+                    </div>
+                `;
+                content.appendChild(div);
+            });
+            
+            const overallPercent = Math.round((totalCompleted / totalItems) * 100);
+            document.getElementById("overallScore").textContent = overallPercent + "%";
+            
+            const messageEl = document.getElementById("scoreMessage");
+            if (overallPercent >= 90) {
+                messageEl.className = "score-message excellent";
+                messageEl.innerHTML = '<i class="fas fa-star"></i> Excellent! You crushed it!';
+            } else if (overallPercent >= 70) {
+                messageEl.className = "score-message good";
+                messageEl.innerHTML = '<i class="fas fa-thumbs-up"></i> Good job! Keep pushing!';
+            } else if (overallPercent >= 50) {
+                messageEl.className = "score-message average";
+                messageEl.innerHTML = '<i class="fas fa-hand-point-up"></i> Not bad, but you can do better!';
+            } else {
+                messageEl.className = "score-message poor";
+                messageEl.innerHTML = '<i class="fas fa-fire"></i> Tomorrow is a new day!';
+            }
         }
 
         // Initialize on load
